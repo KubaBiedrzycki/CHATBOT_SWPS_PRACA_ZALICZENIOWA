@@ -1,13 +1,13 @@
 # CHATBOT SWPS
 
-Cześć! To projekt-zabawka (ale na serio) dla studentów **psychologii** i
+To projekt-zabawka (ale na serio) dla studentów **psychologii** i
 **informatyki** SWPS. Pokażemy Ci, jak zbudować własnego **chatbota AI**, który
 gada po polsku i potrafi **sam doszukiwać sobie wiedzy** — u nas z
 [Repozytorium naukowego SWPS](https://share.swps.edu.pl). Ta sztuczka nazywa się
 **RAG** i za chwilę wyjaśnimy, o co w niej chodzi.
 
 Projekt jest celowo prosty, żebyś mógł(a) go odpalić, zrozumieć i **przerobić na
-swój temat**. Nie musisz być programistą — przeprowadzimy Cię krok po kroku.
+swój temat**. Nie musisz być doświadczonym programistą — przeprowadzimy Cię krok po kroku.
 
 > Coś jest niejasne? Zajrzyj do [Słowniczka](#słowniczek-pojęć) na końcu — bez
 > żargonu, po ludzku.
