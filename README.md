@@ -21,6 +21,7 @@ swój temat**. Nie musisz być programistą — przeprowadzimy Cię krok po krok
   - [Co właściwie zbudujemy](#co-właściwie-zbudujemy)
   - [Co dostajesz na jaką ocenę](#co-dostajesz-na-jaką-ocenę)
   - [Czego potrzebujesz na start](#czego-potrzebujesz-na-start)
+  - [Jak zacząć (fork i praca w grupie)](#jak-zacząć-fork-i-praca-w-grupie)
   - [Odpalamy](#odpalamy)
   - [Jak to jest poskładane (architektura)](#jak-to-jest-poskładane-architektura)
   - [RAG — czyli skąd bot bierze wiedzę](#rag--czyli-skąd-bot-bierze-wiedzę)
@@ -99,6 +100,7 @@ Zainstaluj sobie to:
 
 | Co | Wersja | Po co | Sprawdzisz tak |
 |---|---|---|---|
+| **Git** | dowolna | pobranie kodu (fork + clone) | `git --version` |
 | **Node.js** | 18+ | uruchamia frontend i narzędzia | `node --version` |
 | **Python** | 3.9+ | uruchamia backend | `python3 --version` |
 | **Yarn (Corepack)** | Yarn 4 | menedżer paczek | `corepack enable` (raz) |
@@ -109,6 +111,36 @@ Zainstaluj sobie to:
 > pliku `.env`, którego Git i tak nie zapisuje.
 >
 > Uwaga!!! Na potrzeby tego projektu dzielę się własnym kluczem API do Claude. Budżet powinien wystarczyć dla wszystkich, gdyby jednak pojawiła się informacja o wyczerpanym limicie dajcie prosze znać: mkieruzel@swps.edu.pl
+
+---
+
+## Jak zacząć (fork i praca w grupie)
+
+**Możecie pracować w grupach 2-3 osobowych** (albo solo — jak wolisz). Przy
+pracy zespołowej najprościej tak: jedna osoba robi forka, a pozostałe dołącza
+jako współpracowników.
+
+**Krok 1 — zrób forka.** Wejdź na repozytorium projektu i kliknij **Fork**
+(prawy górny róg). Powstanie Twoja własna kopia na Twoim koncie GitHub:
+
+> https://github.com/marcinkieruzel/CHATBOT_SWPS_PRACA_ZALICZENIOWA
+
+**Krok 2 — sklonuj forka na swój komputer** (podmień `TWOJA-NAZWA` na swoją
+nazwę użytkownika GitHub):
+
+```bash
+git clone https://github.com/TWOJA-NAZWA/CHATBOT_SWPS_PRACA_ZALICZENIOWA.git
+cd CHATBOT_SWPS_PRACA_ZALICZENIOWA
+```
+
+**Krok 3 — dodaj resztę zespołu** (przy pracy w grupie). Na GitHubie w swoim
+forku: **Settings → Collaborators → Add people** i wpisz nazwy kolegów/koleżanek.
+Od tej pory pracujecie na jednym repozytorium.
+
+> Wskazówka: żeby nie wchodzić sobie w drogę, dobrze jest pracować na osobnych
+> gałęziach (`git checkout -b moja-czesc`) i łączyć zmiany przez *pull requesty*.
+
+Gdy masz już kod u siebie — przejdź do [Odpalamy](#odpalamy).
 
 ---
 
