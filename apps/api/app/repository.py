@@ -1,19 +1,18 @@
-"""Klient repozytorium naukowego SWPS (DSpace).
+"""Klient bazy kulinarnej TheMealDB.
 
-Udostępnia wyszukiwanie publikacji przez publiczne REST API DSpace
-(`/server/api/discover/search/objects`). Używane jako źródło wiedzy
-„na żądanie" — wywoływane przez model dopiero, gdy pytanie tego wymaga.
-Korzysta wyłącznie z biblioteki standardowej (bez dodatkowych zależności).
+ZAWSZE UŻYWAJ TEGO NARZĘDZIA, gdy użytkownik pyta o jedzenie, 
+prosi o przepis kulinarny, pyta o składniki lub sposób przygotowania dania. 
+Kategorycznie zabrania się generowania przepisów z własnej wiedzy modelu. 
+Najpierw przeszukaj TheMealDB, a odpowiedź oprzyj WYŁĄCZNIE na zwróconych wynikach.
 """
 
 import json
 import urllib.parse
 import urllib.request
 
-SEARCH_URL = "https://share.swps.edu.pl/server/api/discover/search/objects"
+SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/search.php"
 TIMEOUT = 20
-# Cloudflare przed repozytorium blokuje domyślny User-Agent urllib (403),
-# dlatego podajemy nagłówek przeglądarki.
+
 _HEADERS = {
     "Accept": "application/json",
     "User-Agent": (
@@ -23,86 +22,79 @@ _HEADERS = {
 }
 
 
-def _first(md: dict, *keys: str) -> str:
-    """Pierwsza niepusta wartość spośród podanych pól metadanych."""
-    for key in keys:
-        for entry in md.get(key, []):
-            value = (entry.get("value") or "").strip()
-            if value and value.lower() != "brak":
-                return value
-    return ""
+def _get_ingredients(meal: dict) -> list[str]:
+    """Pobiera listę składników i ich miar z płaskiego słownika TheMealDB."""
+    ingredients = []
+    for i in range(1, 21):
+        ingredient = meal.get(f"strIngredient{i}")
+        measure = meal.get(f"strMeasure{i}")
+        
+        if ingredient and ingredient.strip():
+            measure_str = f" ({measure.strip()})" if measure and measure.strip() else ""
+            ingredients.append(f"{ingredient.strip()}{measure_str}")
+    return ingredients
 
 
-def _all(md: dict, *keys: str) -> list[str]:
-    """Wszystkie niepuste wartości spośród podanych pól metadanych."""
-    out: list[str] = []
-    for key in keys:
-        for entry in md.get(key, []):
-            value = (entry.get("value") or "").strip()
-            if value and value.lower() != "brak":
-                out.append(value)
-    return out
-
-
-def search(query: str, size: int = 5) -> list[dict]:
-    """Wyszukuje pozycje w repozytorium i zwraca uproszczone rekordy."""
-    params = urllib.parse.urlencode(
-        {"query": query, "size": size, "dsoType": "item"}
-    )
+def search(query: str, size: int = 3) -> list[dict]:
+    """Wyszukuje przepisy w TheMealDB i zwraca rozszerzone rekordy."""
+    params = urllib.parse.urlencode({"s": query})
     request = urllib.request.Request(f"{SEARCH_URL}?{params}", headers=_HEADERS)
+    
     with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
         data = json.load(response)
 
-    objects = (
-        data.get("_embedded", {})
-        .get("searchResult", {})
-        .get("_embedded", {})
-        .get("objects", [])
-    )
-
+    meals = data.get("meals") or []
     results = []
-    for obj in objects:
-        item = obj.get("_embedded", {}).get("indexableObject", {})
-        md = item.get("metadata", {})
-        handle = item.get("handle")
+    
+    # Ograniczamy wyniki np. do 3 sztuk, bo pełne instrukcje zajmują dużo miejsca w kontekście
+    for meal in meals[:size]:
         results.append(
             {
-                "title": _first(md, "dc.title") or item.get("name", ""),
-                "authors": _all(md, "dc.contributor.author", "dc.contributor.editor"),
-                "year": _first(md, "dc.date.issued")[:4],
-                "abstract": _first(
-                    md, "dc.abstract.pl", "dc.description.abstract", "dc.abstract.en"
-                ),
-                "subjects": _all(md, "dc.subject.pl", "dc.subject.en"),
-                "url": _first(md, "dc.identifier.uri")
-                or (f"https://share.swps.edu.pl/handle/{handle}" if handle else ""),
+                "id": meal.get("idMeal") or "",
+                "name": meal.get("strMeal") or "",
+                "instructions": meal.get("strInstructions") or "",
+                "source_url": meal.get("strSource") or "",
+                "youtube_url": meal.get("strYoutube") or "",
+                "ingredients": _get_ingredients(meal)
             }
         )
     return results
 
 
-def search_as_text(query: str, size: int = 5) -> str:
-    """Wyszukuje i formatuje wyniki jako tekst do przekazania modelowi."""
+def search_as_text(query: str, size: int = 3) -> str:
+    """Wyszukuje i formatuje wyniki jako kompletny tekst do przekazania modelowi."""
     try:
         results = search(query, size)
-    except Exception as exc:  # sieć/parsowanie — nie wywracamy całego czatu
-        return f"(Błąd wyszukiwania w repozytorium SWPS: {exc})"
+    except Exception as exc: 
+        return f"(Błąd wyszukiwania w API TheMealDB: {exc})"
 
     if not results:
-        return f"(Brak wyników w repozytorium SWPS dla zapytania: „{query}”.)"
+        return f"(Brak wyników w TheMealDB dla zapytania: „{query}”.)"
 
     blocks = []
     for i, r in enumerate(results, 1):
-        parts = [f"{i}. {r['title']}"]
-        if r["authors"]:
-            parts.append("Autorzy/redakcja: " + ", ".join(r["authors"][:6]))
-        if r["year"]:
-            parts.append("Rok: " + r["year"])
-        if r["subjects"]:
-            parts.append("Słowa kluczowe: " + ", ".join(r["subjects"][:8]))
-        if r["abstract"]:
-            parts.append("Abstrakt: " + r["abstract"][:600])
-        if r["url"]:
-            parts.append("Link: " + r["url"])
+        parts = [f"{i}. {r['name']}"]
+            
+        if r["ingredients"]:
+            parts.append("Składniki: " + ", ".join(r["ingredients"]))
+            
+        if r["instructions"]:
+            # Kluczowa zmiana: Zwracamy modelowi PEŁNY tekst bez ucinania. 
+            # Dzięki temu LLM może podyktować użytkownikowi kompletny przepis.
+            parts.append("Instrukcje gotowania:\n" + r["instructions"].strip())
+            
+        # Dostarczamy kompletne linki, o które poprosiłeś
+        links = []
+        if r["source_url"]:
+            links.append(f"Źródło przepisu: {r['source_url']}")
+        if r["id"]:
+            links.append(f"Strona TheMealDB: https://www.themealdb.com/meal.php?c={r['id']}")
+        if r["youtube_url"]:
+            links.append(f"Wideo (YouTube): {r['youtube_url']}")
+            
+        if links:
+            parts.append("Przydatne linki:\n- " + "\n- ".join(links))
+            
         blocks.append("\n".join(parts))
+        
     return "\n\n".join(blocks)
