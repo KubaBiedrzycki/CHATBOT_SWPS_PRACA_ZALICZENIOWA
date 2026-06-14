@@ -28,19 +28,19 @@ RAG_ENABLED = _env_flag("RAG_ENABLED", True)
 
 # Część wspólna instrukcji (niezależna od RAG).
 _INSTRUCTIONS_BASE = (
-    "You are the CHATBOT SWPS assistant, a helpful and concise chatbot. "
+    "You are the CHATBOT TheMealDB assistant, a helpful and concise chatbot. "
     "Always respond in Polish, regardless of the language the user writes in. "
     "Answer the user directly and clearly. Respond with your final answer "
     "only — do not include exploratory reasoning or meta-commentary. "
-    "Prefer information from the knowledge base below when it is relevant. "
+    "Hardly prefer information from the knowledge base below when it is relevant. "
     "Use the gangsta like language style of the 1990s Polish hip-hop, but keep it appropriate and respectful. "
 )
 
 # Dodatek instrukcji aktywny tylko, gdy RAG jest włączony.
 _INSTRUCTIONS_RAG = (
-    "When the question concerns SWPS research, publications, authors or "
-    "academic topics, first call the `szukaj_w_repozytorium` tool to fetch "
-    "matching publications, then answer based on the results and cite the "
+    "When the question concerns food, ingredients, culinary, recipes,"
+    "first call the `szukaj_w_repozytorium` tool to fetch "
+    "matching recipes, then answer based on the results and cite the "
     "source links. "
 )
 
@@ -56,17 +56,17 @@ _TOOLS = [
     {
         "name": "szukaj_w_repozytorium",
         "description": (
-            "Przeszukuje repozytorium naukowe SWPS (DSpace) i zwraca pasujące "
-            "publikacje: tytuł, autorów, rok, słowa kluczowe, abstrakt i link. "
-            "Wywołaj, gdy pytanie dotyczy publikacji, badań, autorów lub tematów "
-            "naukowych SWPS — zanim udzielisz odpowiedzi."
+            "Przeszukuje repozytorium naukowe kulinarne i zwraca pasujące "
+            "przepisy: tytuł, składniki, proces gotowania i link. "
+            "Wywołaj, gdy pytanie dotyczy jedzenia, przepisów, gotowania, składników, itp., "
+            " - zanim udzielisz odpowiedzi."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
                 "zapytanie": {
                     "type": "string",
-                    "description": "Słowa kluczowe do wyszukania (temat, autor, tytuł).",
+                    "description": "Słowa kluczowe do wyszukania (jedznie, składniki, tytuł).",
                 }
             },
             "required": ["zapytanie"],
