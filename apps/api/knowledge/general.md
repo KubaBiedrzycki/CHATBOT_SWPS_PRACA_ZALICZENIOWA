@@ -25,9 +25,5 @@ automatycznie wczytany przy następnym uruchomieniu API. To doskonałe miejsce n
 np. przeliczniki miar kuchennych, tabele zamienników czy podstawy dietetyki.
 
 **P: Kto utrzymuje ten projekt?**
-O: Zespół projektowy. Zaktualizuj tę odpowiedź o prawdziwe dane kontaktowe.
+O: Kacper Kulawik (79650) i Jakub Biedrzycki (76619)
 
-## Uwagi
-
-Zastąp tę przykładową treść swoją rzeczywistą wiedzą: autorskimi
-przepisami, informacjami o alergenach, poradnikami dotycz
